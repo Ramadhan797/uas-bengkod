@@ -17,12 +17,37 @@
 
                        
 
-                        <div>
+                        <div class="flex items-center gap-3">
                             <a href="{{ route('dokter.jadwal-periksa.create') }}"
                                 class="inline-block px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                 Tambah Jadwal Periksa
                             </a>
+
+                            <form action="{{ route('dokter.jadwal-periksa.activateAll') }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="inline-block px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700 focus:outline-none">
+                                    Aktifkan Semua
+                                </button>
+                            </form>
+
+                            <form action="{{ route('dokter.jadwal-periksa.deactivateAll') }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="inline-block px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700 focus:outline-none">
+                                    Nonaktifkan Semua
+                                </button>
+                            </form>
                         </div>
+                    </header>
+
+                    @if (session('success'))
+                        <div class="p-4 mt-4 mb-4 text-sm text-green-800 bg-green-100 border border-green-200 rounded">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     </header>
 
                     <div class="overflow-x-auto mt-6">

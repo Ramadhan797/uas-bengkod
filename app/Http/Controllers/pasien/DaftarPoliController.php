@@ -22,7 +22,7 @@ class DaftarPoliController extends Controller
         $jadwalPeriksa = JadwalPeriksa::all();
         $polis = Poli::all();
 
-        return view('pasien.daftar-poli.index', compact('jadwalPeriksa'), compact('polis'));
+        return view('pasien.daftar-poli.index', compact('jadwalPeriksa', 'polis'));
     }
 
     /**

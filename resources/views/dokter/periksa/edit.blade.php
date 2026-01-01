@@ -54,18 +54,36 @@
                             </div>
 
                             <div>
-                                <label for="obat" class="block text-sm font-medium text-gray-700 mb-1">Obat</label>
-                                <select name="obat[]" id="obat" multiple
-                                    class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Obat</label>
+                                <div class="grid gap-3">
                                     @foreach ($obats as $obat)
-                                        <option value="{{ $obat->id }}"
-                                            @if ($periksa->detailPeriksa->pluck('id_obat')->contains($obat->id)) selected @endif>
-                                            {{ $obat->nama_obat }}
-                                            {{ $obat->harga ? ' - RP ' . number_format($obat->harga, 0, ',', '.') : '' }}
-                                        </option>
+                                        <div class="flex items-center gap-3">
+                                            <input type="checkbox" id="obat_{{ $obat->id }}" name="obat[]" value="{{ $obat->id }}"
+                                                @if ($periksa->detailPeriksa->pluck('id_obat')->contains($obat->id)) checked @endif
+                                                @if ($obat->stok <= 0) disabled @endif>
+                                            <label for="obat_{{ $obat->id }}" class="flex-1">
+                                                <span class="font-medium">{{ $obat->nama_obat }}</span>
+                                                <span class="text-xs text-gray-500">{{ $obat->harga ? ' - RP ' . number_format($obat->harga, 0, ',', '.') : '' }} (stok: {{ $obat->stok ?? 0 }})</span>
+                                            </label>
+                                            <input type="number" name="qty[{{ $obat->id }}]" min="1" value="{{ optional($periksa->detailPeriksa->firstWhere('id_obat', $obat->id))->qty ?? 1 }}" class="w-20 px-2 py-1 border rounded">
+                                        </div>
                                     @endforeach
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1">* Tekan Ctrl (Windows) / Cmd (Mac) untuk pilih lebih dari satu</p>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">* Centang obat lalu isi jumlah (qty) yang diberikan.</p>
+                            </div>
+
+                            <div>
+                                <label for="diagnosa" class="block text-sm font-medium text-gray-700">Diagnosa</label>
+                                <textarea name="diagnosa" id="diagnosa" rows="2"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2"
+                                    placeholder="Tuliskan diagnosa singkat...">{{ old('diagnosa', optional($periksa->medicalRecord)->diagnosa ?? '') }}</textarea>
+                            </div>
+
+                            <div>
+                                <label for="tindakan" class="block text-sm font-medium text-gray-700">Tindakan</label>
+                                <textarea name="tindakan" id="tindakan" rows="2"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2"
+                                    placeholder="Tindakan atau resep yang diberikan...">{{ old('tindakan', optional($periksa->medicalRecord)->tindakan ?? '') }}</textarea>
                             </div>
 
                             <div>

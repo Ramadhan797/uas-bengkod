@@ -54,17 +54,20 @@
                             </div>
 
                             <div>
-                                <label for="obat" class="block text-sm font-medium text-gray-700 mb-1">Obat</label>
-                                <select name="obat[]" id="obat" multiple
-                                    class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm p-2">
-                                    @foreach ($detailPeriksas as $detailPeriksa)
-                                        <option value="{{ $detailPeriksa->id_periksa }}"
-                                            @if ($periksa->detailPeriksa->pluck('id_obat')->contains($detailPeriksa->obat->id)) selected @endif aria-readonly="true">
-                                            {{ $detailPeriksa->obat->nama_obat }}
-                                            {{ $detailPeriksa->obat->harga ? ' - RP ' . number_format($detailPeriksa->obat->harga, 0, ',', '.') : '' }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Obat</label>
+                                <div class="bg-gray-50 border rounded p-3">
+                                    @forelse ($detailPeriksas as $detail)
+                                        <div class="flex items-center justify-between py-2">
+                                            <div>
+                                                <div class="font-medium">{{ $detail->obat->nama_obat }}</div>
+                                                <div class="text-xs text-gray-500">{{ $detail->obat->harga ? ' - RP ' . number_format($detail->obat->harga, 0, ',', '.') : '' }}</div>
+                                            </div>
+                                            <div class="text-sm text-gray-700">Qty: <strong>{{ $detail->qty ?? 1 }}</strong></div>
+                                        </div>
+                                    @empty
+                                        <div class="text-gray-500">Tidak ada obat yang diresepkan.</div>
+                                    @endforelse
+                                </div>
                             </div>
 
                             <div>

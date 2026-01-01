@@ -35,6 +35,8 @@
                                     </th>
                                     <th class="px-4 py-2">Harga
                                     </th>
+                                    <th class="px-4 py-2">Stok
+                                    </th>
                                     <th class="px-4 py-2">Aksi
                                     </th>
                                 </tr>
@@ -46,10 +48,19 @@
                                         <td class="px-4 py-2">{{ $obat->nama_obat }}</td>
                                         <td class="px-4 py-2">{{ $obat->kemasan }}</td>
                                         <td class="px-4 py-2">{{ $obat->harga }}</td>
+                                        <td class="px-4 py-2">{{ $obat->stok ?? 0 }}</td>
                                         <td class="px-4 py-2 flex space-x-2">
                                             <a href="{{ route('admin.obat.edit', $obat->id) }}"
                                                 class="inline-block px-3 py-1 text-sm text-white bg-amber-600 rounded hover:bg-amber-700">
                                                 Edit
+                                            </a>
+                                            <a href="{{ route('admin.obat.stockForm', $obat->id) }}"
+                                                class="inline-block px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700">
+                                                Tambah Stok
+                                            </a>
+                                            <a href="{{ route('admin.obat.stockDecreaseForm', $obat->id) }}"
+                                                class="inline-block px-3 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600">
+                                                Kurangi Stok
                                             </a>
                                             <form action="{{ route('admin.obat.destroy', $obat->id) }}" method="POST">
                                                 @csrf

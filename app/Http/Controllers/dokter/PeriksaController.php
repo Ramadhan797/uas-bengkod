@@ -9,6 +9,7 @@ use App\Models\Obat;
 use App\Models\Periksa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PeriksaController extends Controller
 {
@@ -74,8 +75,11 @@ class PeriksaController extends Controller
         $request->validate([
             'obat' => 'array|required',
             'obat.*' => 'exists:obats,id',
+            'qty' => 'array',
+            'qty.*' => 'integer|min:1',
+            'diagnosa' => 'nullable|string',
+            'tindakan' => 'nullable|string',
             'catatan' => 'nullable|string',
-            
         ]);
 
         $periksa = Periksa::findOrFail($id);
@@ -83,15 +87,49 @@ class PeriksaController extends Controller
             'catatan' => $request->catatan,
         ]);
 
-        // Hapus obat lama
-        DetailPeriksa::where('id_periksa', $periksa->id)->delete();
+        // Gunakan transaksi untuk memastikan stok dan detail diperbarui atomically
+        try {
+            DB::transaction(function () use ($periksa, $request) {
+                // Kembalikan stok obat lama ke inventory (menggunakan qty sebelumnya)
+                $previousDetails = DetailPeriksa::where('id_periksa', $periksa->id)->get();
+                foreach ($previousDetails as $prev) {
+                    $ob = Obat::find($prev->id_obat);
+                    if ($ob) {
+                        $ob->increment('stok', $prev->qty ?? 1);
+                    }
+                }
 
-        // Tambah obat baru
-        foreach ($request->obat as $id_obat) {
-            DetailPeriksa::create([
-                'id_periksa' => $periksa->id,
-                'id_obat' => $id_obat,
-            ]);
+                // Hapus obat lama
+                DetailPeriksa::where('id_periksa', $periksa->id)->delete();
+
+                // Ambil qty yang diminta
+                $qtys = $request->input('qty', []);
+
+                // Cek stok untuk setiap obat baru sesuai qty
+                foreach ($request->obat as $id_obat) {
+                    $requestedQty = isset($qtys[$id_obat]) ? (int) $qtys[$id_obat] : 1;
+                    $obatItem = Obat::findOrFail($id_obat);
+                    if ($obatItem->stok < $requestedQty) {
+                        throw new \Exception('Stok untuk ' . $obatItem->nama_obat . ' tidak cukup.');
+                    }
+                }
+
+                // Tambah obat baru dan kurangi stok sesuai qty
+                foreach ($request->obat as $id_obat) {
+                    $assignedQty = isset($qtys[$id_obat]) ? (int) $qtys[$id_obat] : 1;
+
+                    DetailPeriksa::create([
+                        'id_periksa' => $periksa->id,
+                        'id_obat' => $id_obat,
+                        'qty' => $assignedQty,
+                    ]);
+
+                    $obatItem = Obat::findOrFail($id_obat);
+                    $obatItem->decrement('stok', $assignedQty);
+                }
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
 
         // 💰 Hitung total harga obat
@@ -104,10 +142,30 @@ class PeriksaController extends Controller
         // Update kolom biaya_periksa
         $periksa->update([
             'biaya_periksa' => $totalBiaya,
-            'status' => true, 
+            'status' => true,
         ]);
 
-        return redirect()->route('dokter.periksa.index')->with('success', 'Data pemeriksaan berhasil diperbarui.');
+        // Buat atau perbarui medical record terkait periksa ini
+        $medicalData = [
+            'id_periksa' => $periksa->id,
+            'id_pasien' => $periksa->daftarPoli->id_pasien,
+            'id_dokter' => Auth::user()->id,
+            'tanggal' => $periksa->tanggal_periksa,
+            'diagnosa' => $request->diagnosa ?? null,
+            'tindakan' => $request->tindakan ?? null,
+            'catatan' => $request->catatan ?? null,
+            'biaya' => $totalBiaya,
+        ];
+
+        // update existing record if ada
+        $existing = \App\Models\MedicalRecord::where('id_periksa', $periksa->id)->first();
+        if ($existing) {
+            $existing->update($medicalData);
+        } else {
+            \App\Models\MedicalRecord::create($medicalData);
+        }
+
+        return redirect()->route('dokter.periksa.index')->with('success', 'Data pemeriksaan berhasil diperbarui dan rekam medis disimpan.');
     }
 
     /**

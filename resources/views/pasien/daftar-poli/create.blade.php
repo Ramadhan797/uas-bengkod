@@ -48,7 +48,7 @@
                                 <div class="relative">
                                     <textarea id="keluhan" name="keluhan" rows="3" required
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-400 resize-none"
-                                        placeholder="Jl. Nama Jalan No. XX, Kelurahan, Kecamatan, Kota"></textarea>
+                                        placeholder="Apa yang anda rasakan?"></textarea>
                                 </div>
                             </div>
                         </div>

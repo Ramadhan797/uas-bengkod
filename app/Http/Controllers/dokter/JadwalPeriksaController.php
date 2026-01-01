@@ -138,20 +138,31 @@ class JadwalPeriksaController extends Controller
     {
         $jadwalPeriksa = JadwalPeriksa::findOrFail($id);
 
-        // Jika jadwal aktif, matikan semua jadwal periksa
-        if (!$jadwalPeriksa->is_aktif) {
-            JadwalPeriksa::where('id_dokter', Auth::user()->id)->update(['is_aktif' => false]);
+        // Toggle status tanpa mengubah jadwal lain sehingga dokter dapat mengaktifkan beberapa jadwal
+        $jadwalPeriksa->is_aktif = !$jadwalPeriksa->is_aktif;
+        $jadwalPeriksa->save();
 
-            // Aktifkan jadwal yang dipilih
-            $jadwalPeriksa->is_aktif = true;
-            $jadwalPeriksa->save();
-        } else {
-            // Matikan jadwal yang dipilih
-            $jadwalPeriksa->is_aktif = false;
-            $jadwalPeriksa->save();
-        }
+        return redirect()->route('dokter.jadwal-periksa.index')->with('success', 'Status jadwal diperbarui!');
+    }
 
-        return redirect()->route('dokter.jadwal-periksa.index');
+    /**
+     * Aktifkan semua jadwal periksa untuk dokter saat ini.
+     */
+    public function activateAll()
+    {
+        JadwalPeriksa::where('id_dokter', Auth::user()->id)->update(['is_aktif' => true]);
+
+        return redirect()->route('dokter.jadwal-periksa.index')->with('success', 'Semua jadwal berhasil diaktifkan!');
+    }
+
+    /**
+     * Nonaktifkan semua jadwal periksa untuk dokter saat ini.
+     */
+    public function deactivateAll()
+    {
+        JadwalPeriksa::where('id_dokter', Auth::user()->id)->update(['is_aktif' => false]);
+
+        return redirect()->route('dokter.jadwal-periksa.index')->with('success', 'Semua jadwal berhasil dinonaktifkan!');
     }
 
 

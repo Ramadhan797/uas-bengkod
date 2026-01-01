@@ -58,6 +58,17 @@
                                             placeholder="10000">
                                     </div>
                                 </div>
+                                <!-- Stok -->
+                                <div>
+                                    <label for="stok" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i class="fas fa-lock text-blue-500 mr-2"></i>Stok Awal
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" id="stok" name="stok" min="0"
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-400 pr-12"
+                                            placeholder="100">
+                                    </div>
+                                </div>
                             </div>
 
 

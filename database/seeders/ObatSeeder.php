@@ -17,12 +17,14 @@ class ObatSeeder extends Seeder
             [
                 'nama_obat' => 'Paracetamol',
                 'kemasan' => 'Tablet 500mg',
-                'harga' => 5000
+                'harga' => 5000,
+                'stok' => 100,
             ],
             [
                 'nama_obat' => 'OBH Combi',
                 'kemasan' => 'Botol 60ml',
-                'harga' => 15000
+                'harga' => 15000,
+                'stok' => 50,
             ]
         ]);
     }

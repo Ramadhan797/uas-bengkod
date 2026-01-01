@@ -38,11 +38,13 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 text-sm">
+                                    @php $hasJadwal = false; @endphp
                                     @foreach ($poli->dokter as $dokter)
                                         @foreach ($dokter->jadwalPeriksa as $jadwal)
                                             @if ($jadwal->is_aktif == true)
+                                                @php $hasJadwal = true; @endphp
                                                 <tr>
-                                                    <td class="px-4 py-2">{{ $poli->id }}</td>
+                                                    <td class="px-4 py-2">{{ $jadwal->id }}</td>
                                                     <td class="px-4 py-2">{{ $dokter->name }}</td>
                                                     <td class="px-4 py-2">{{ Str::ucfirst($jadwal->hari) }}</td>
                                                     <td class="px-4 py-2">
@@ -66,6 +68,11 @@
                                         @endforeach
                                     @endforeach
 
+                                    @unless ($hasJadwal)
+                                        <tr>
+                                            <td class="px-4 py-4 text-center text-gray-500" colspan="6">Tidak ada jadwal aktif untuk poli ini.</td>
+                                        </tr>
+                                    @endunless
 
                                     @if ($errors->has('hari'))
                                         <div
